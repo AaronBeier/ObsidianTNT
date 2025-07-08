@@ -1,0 +1,7 @@
+name: ObsidianTnt
+version: '1.0.0'
+main: de.aaronbeier.obsidiantnt.ObsidianTntPlugin
+api-version: '1.21'
+load: STARTUP
+authors: [ AaronBeier ]
+
