@@ -79,7 +79,7 @@ public final class ObsidianTntPlugin extends JavaPlugin implements Listener {
 	}
 
 	@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-	void onPlayerPickupIItem(final EntityPickupItemEvent event) {
+	void onPlayerPickupItem(final EntityPickupItemEvent event) {
 		if (!(event.getEntity() instanceof final Player player)) {
 			return;
 		}
@@ -147,6 +147,11 @@ public final class ObsidianTntPlugin extends JavaPlugin implements Listener {
 	@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
 	void onBlockBreak(final BlockBreakEvent event) {
 		final Block block = event.getBlock();
+
+		if (block.getType() != Material.TNT) {
+			return;
+		}
+
 		final PersistentDataContainer worldPersistentData = block.getWorld().getPersistentDataContainer();
 		final HashSet<BlockVector> bedrockBreakerLocations = worldPersistentData.getOrDefault(this.bedrockBreakerKey, bedrockBreakerLocationSetDataType, new HashSet<>());
 
@@ -181,8 +186,11 @@ public final class ObsidianTntPlugin extends JavaPlugin implements Listener {
 		bedrockBreakerLocations.remove(positionToCheck);
 		worldPersistentData.set(this.bedrockBreakerKey, bedrockBreakerLocationSetDataType, bedrockBreakerLocations);
 
+		final Location finalLocation = event.getLocation().toBlockLocation();
+		// Need this so that if the TNT gets moved by water or gravity we blow up Bedrock at the new position
+
 		for (final int[] direction : directionsToCheck) {
-			final Block block = world.getBlockAt(sourceLocation.clone().add(direction[0], direction[1], direction[2]));
+			final Block block = world.getBlockAt(finalLocation.clone().add(direction[0], direction[1], direction[2]));
 
 			if (block.getType() == Material.BEDROCK && random.nextFloat() > 0.2f) {
 				block.setType(Material.AIR);
